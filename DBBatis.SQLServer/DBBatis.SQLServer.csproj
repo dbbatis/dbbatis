@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup Label="Globals">
+    <SccProjectName></SccProjectName>
+    <SccProvider></SccProvider>
+    <SccAuxPath></SccAuxPath>
+    <SccLocalPath></SccLocalPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Tilery</Authors>
+    <Company>上海威璟信息科技有限公司</Company>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>DBBatis.SQLServer SQLServer组件，依赖于DBBatis基础组件。</Description>
+    <PackageProjectUrl>www.dbbatis.com</PackageProjectUrl>
+    <SignAssembly>true</SignAssembly>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>Copyright@vjing 2021</Copyright>
+    <PackageIcon>DBBatis.png</PackageIcon>
+    <PackageTags>SQL</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="SQLColumnProperties.cs" />
+    <Compile Remove="SQLFactory.cs" />
+    <Compile Remove="SQLStateManager.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DBBatis\DBBatis.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\DBBatis.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
