@@ -58,11 +58,5 @@
     <Compile Include="WebActionData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DBBatis\DBBatis.csproj">
-      <Project>{6f7f2103-9868-4233-842b-87ffd573a0b6}</Project>
-      <Name>DBBatis</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
