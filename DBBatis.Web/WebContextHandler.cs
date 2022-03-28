@@ -45,6 +45,7 @@ namespace DBBatis.Web
             Context = context;
             
             _HandlerWebValue = new WebActionData(Context.Request);
+            _HandlerWebValue.ContextHandler = this;
         }
 
         public override bool CheckValid()

@@ -53,6 +53,7 @@
     <Compile Include="BasePage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="WebHandler.cs" />
     <Compile Include="WebContextHandler.cs" />
     <Compile Include="WebActionData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
