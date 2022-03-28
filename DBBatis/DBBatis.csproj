@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup Label="Globals">
+    <SccProjectName></SccProjectName>
+    <SccProvider></SccProvider>
+    <SccAuxPath></SccAuxPath>
+    <SccLocalPath></SccLocalPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Tilery</Authors>
+    <Company>上海威璟信息科技有限公司</Company>
+    <Description>DBBatis 一款持久层组件，将SQL语句配置在XML中，免除了几乎所有的数据库操作代码。使程序员在能够快速、高效的开发高质量的程序。
+使用方法参照官网示例:http://www.dbbatis.com</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>www.dbbatis.com</PackageProjectUrl>
+    <PackageIcon>DBBatis.png</PackageIcon>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Copyright>Copyright@vjing 2021</Copyright>
+    <AssemblyVersion>1.0.3.20</AssemblyVersion>
+    <FileVersion>1.0.3.20</FileVersion>
+    <Version>1.0.31</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Interface\**" />
+    <EmbeddedResource Remove="Interface\**" />
+    <None Remove="Interface\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Action\Factory.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\DBBatis.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
