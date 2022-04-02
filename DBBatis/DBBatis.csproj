@@ -21,7 +21,8 @@
     <Copyright>Copyright@vjing 2021</Copyright>
     <AssemblyVersion>1.0.3.20</AssemblyVersion>
     <FileVersion>1.0.3.20</FileVersion>
-    <Version>1.0.31</Version>
+    <Version>1.0.3.2</Version>
+    <RepositoryUrl>https://github.com/dbbatis/dbbatis</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

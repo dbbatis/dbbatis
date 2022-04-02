@@ -19,7 +19,9 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>Copyright@vjing 2021</Copyright>
     <PackageIcon>DBBatis.png</PackageIcon>
-    <PackageTags>SQL</PackageTags>
+    <PackageTags>SQL Server</PackageTags>
+    <Version>1.0.1</Version>
+    <RepositoryUrl>https://github.com/dbbatis/dbbatis</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -52,6 +54,10 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DBBatis\DBBatis.csproj" />
   </ItemGroup>
 
 </Project>

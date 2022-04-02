@@ -983,8 +983,15 @@ namespace DBBatis.Action
         public ActionResult Do(ActionData handlerValue,int userID
             ,string connectionString)
         {
-            Data=handlerValue;
+            Data =handlerValue;
             ActionResult result = new ActionResult();
+            if (userID <= 0 && this.NeedLogin)
+            {
+                result.ErrMessage = string.Format("Action【{0}】需要登录才可执行.", this.Name);
+                result.IsOut = true;
+                return result;
+            }
+
             ActionBindCommand allbindcommand= GetAllActionBindCommand(handlerValue,userID
                 ,connectionString);
             if (allbindcommand.IsErr)
@@ -1317,12 +1324,17 @@ namespace DBBatis.Action
 
             return result;
         }
-        void RollbackTran(IDbTransaction tran)
+        static void RollbackTran(IDbTransaction tran)
         {
             if (tran != null && tran.Connection != null)
             {
                 tran.Rollback();
             }
+        }
+        ActionResult DoDbCommand(IDbCommand dbCommand, IDbConnection cnn
+           , IDbTransaction tran, ActionSimpleType simpleType, string tipinfo)
+        {
+            return DoDbCommand(dbCommand, cnn, tran, simpleType, tipinfo, this.DbConfig, this.Name);
         }
         /// <summary>
         /// 执行命令
@@ -1332,8 +1344,8 @@ namespace DBBatis.Action
         /// <param name="tran"></param>
         /// <param name="simpleType"></param>
         /// <returns></returns>
-        ActionResult DoDbCommand(IDbCommand dbCommand, IDbConnection cnn
-            , IDbTransaction tran, ActionSimpleType simpleType,string tipinfo)
+        static ActionResult DoDbCommand(IDbCommand dbCommand, IDbConnection cnn
+            , IDbTransaction tran, ActionSimpleType simpleType,string tipinfo,DbConfig dbConfig,string actionname)
         {
             ActionResult result = new ActionResult();
             DbDataAdapter adapter = null;
@@ -1351,9 +1363,9 @@ namespace DBBatis.Action
                         result.Data = dbCommand.ExecuteScalar();
                         break;
                     case ActionSimpleType.OneRow:
-                        adapter = this.DbConfig.CreateDataAdapter();
+                        adapter = dbConfig.CreateDataAdapter();
                         adapter.SelectCommand = (DbCommand)dbCommand;
-                        DataTable dtonerow = new DataTable(this.Name);
+                        DataTable dtonerow = new DataTable(actionname);
                         adapter.Fill(dtonerow);
                         if (dtonerow.Rows.Count > 0)
                             result.Data = dtonerow.Rows[0];
@@ -1361,16 +1373,16 @@ namespace DBBatis.Action
                             result.Data = null;
                         break;
                     case ActionSimpleType.DataTable:
-                        adapter = this.DbConfig.CreateDataAdapter();
+                        adapter = dbConfig.CreateDataAdapter();
                         adapter.SelectCommand = (DbCommand)dbCommand;
-                        DataTable dt = new DataTable(this.Name);
+                        DataTable dt = new DataTable(actionname);
                         adapter.Fill(dt);
                         result.Data = dt;
                         break;
                     case ActionSimpleType.DataSet:
-                        adapter = this.DbConfig.CreateDataAdapter();
+                        adapter = dbConfig.CreateDataAdapter();
                         adapter.SelectCommand = (DbCommand)dbCommand;
-                        DataSet ds = new DataSet(this.Name);
+                        DataSet ds = new DataSet(actionname);
                         adapter.Fill(ds);
                         result.Data = ds;
                         break;
@@ -1381,8 +1393,8 @@ namespace DBBatis.Action
                 {
                     
                     if (!string.IsNullOrEmpty(tipinfo)) tipinfo = string.Format("-{0}", tipinfo);
-                    CommandLog.Log(string.Format("{0}{1}{2}", this.Name, tipinfo,tran==null?"":"开启事务"),dbCommand,
-                        result.Data,commandbegin,this.DbConfig);
+                    CommandLog.Log(string.Format("{0}{1}{2}", actionname, tipinfo,tran==null?"":"开启事务"),dbCommand,
+                        result.Data,commandbegin,dbConfig);
                 }
                 
                 if (timespan.TotalSeconds > TimeOutLog)
@@ -1393,9 +1405,9 @@ namespace DBBatis.Action
                         {
                             Thread thread = new Thread(WriteLogOutCommand);
                             CommandInfo commandInfo = new CommandInfo();
-                            commandInfo.ActionName = this.Name;
+                            commandInfo.ActionName = actionname;
                             commandInfo.TotalSeconds = timespan.TotalSeconds;
-                            commandInfo.DbCommand = DbConfig.GetCommandString(dbCommand);
+                            commandInfo.DbCommand = dbConfig.GetCommandString(dbCommand);
                             thread.Start(commandInfo);
                         }
                         catch (Exception err)
@@ -1411,27 +1423,31 @@ namespace DBBatis.Action
                 RollbackTran(tran);
                 result.SetError(dberr);
                 if(!string.IsNullOrEmpty(tipinfo)) tipinfo=string.Format("-{0}",tipinfo);
-                Log.Write(string.Format("DoAction:{0}{1}", this.Name, tipinfo)
-                    , dbCommand, dberr, this.DbConfig);
+                Log.Write(string.Format("DoAction:{0}{1}", actionname, tipinfo)
+                    , dbCommand, dberr, dbConfig);
             }catch(Exception err)
             {
                 RollbackTran(tran);
                 result.SetError(err);
                 if (!string.IsNullOrEmpty(tipinfo)) tipinfo = string.Format("-{0}", tipinfo);
-                Log.Write(string.Format("DoAction:{0}{1}", this.Name, tipinfo)
-                    , dbCommand, err, this.DbConfig);
+                Log.Write(string.Format("DoAction:{0}{1}", actionname, tipinfo)
+                    , dbCommand, err, dbConfig);
             }
             
             return result;
         }
-        void WriteLogOutCommand(object commandInfo)
+       static void WriteLogOutCommand(object commandInfo)
         {
             if (LogOutCommand != null)
                 LogOutCommand((CommandInfo)commandInfo);
         }
-
         ActionResult DoBatchCommand(BatchActionBindCommand batchActionBindCommand
             , IDbConnection cnn, IDbTransaction tran)
+        {
+            return DoBatchCommand(batchActionBindCommand, cnn, tran,this.DbConfig);
+        }
+       internal static ActionResult DoBatchCommand(BatchActionBindCommand batchActionBindCommand
+            , IDbConnection cnn, IDbTransaction tran, DbConfig dbConfig)
         {
             IDbCommand checkactioncmmd = batchActionBindCommand.CheckActionCommand;
             IDbCommand checkactionstatecmmd = batchActionBindCommand.CheckActionStateCommand;
@@ -1447,7 +1463,7 @@ namespace DBBatis.Action
                 if (checkactionstatecmmd != null)
                 {
                     result = DoDbCommand(checkactionstatecmmd, cnn, tran
-                        , ActionSimpleType.OneValue, actionname+"-CheckActionStateCommand");
+                        , ActionSimpleType.OneValue, actionname+"-CheckActionStateCommand",dbConfig,actionname);
                     if (result.IsOK)
                     {
                         result.ErrMessage = result.Data.ToString();
@@ -1461,7 +1477,7 @@ namespace DBBatis.Action
                 if(checkactioncmmd != null)
                 {
                     result = DoDbCommand(checkactioncmmd, cnn, tran
-                        , ActionSimpleType.OneValue, actionname + "-CheckActionCommand");
+                        , ActionSimpleType.OneValue, actionname + "-CheckActionCommand",dbConfig,actionname);
                     if (result.IsOK)
                     {
                         result.ErrMessage = result.Data.ToString();
@@ -1475,7 +1491,7 @@ namespace DBBatis.Action
                 if (checkcmmd != null && string.IsNullOrEmpty(checkcmmd.CommandText) == false)
                 {
                     result = DoDbCommand(checkactioncmmd, cnn, tran
-                        , ActionSimpleType.OneValue, actionname + "-CheckCommand");
+                        , ActionSimpleType.OneValue, actionname + "-CheckCommand", dbConfig, actionname);
                     if (result.IsOK)
                     {
                         result.ErrMessage = result.Data.ToString();
@@ -1489,7 +1505,7 @@ namespace DBBatis.Action
                 foreach(DbCommand command in batchActionBindCommand.DoCommands)
                 {
                     result = DoDbCommand(command, cnn, tran
-                        , ActionSimpleType.NonQuery, actionname + "-DoCommand");
+                        , ActionSimpleType.NonQuery, actionname + "-DoCommand", dbConfig, actionname);
                     if (result.IsErr)
                     {
                         RollbackTran(tran);
@@ -1497,7 +1513,7 @@ namespace DBBatis.Action
                     }
                 }
                 result = DoDbCommand(batchActionBindCommand.ResultCommand
-                    , cnn, tran,  ActionSimpleType.DataTable, actionname + "-ResultCommand");
+                    , cnn, tran,  ActionSimpleType.DataTable, actionname + "-ResultCommand", dbConfig, actionname);
 
 
 

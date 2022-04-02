@@ -586,8 +586,8 @@ namespace DBBatis.Action
                 BindResult bindresult = new BindResult();
 
                 bindresult.Command = batchdbaction.DbConfig.CloneCommand(batchdbaction.Command.Command);
-                ActionData rowvaluehandler = new ActionData(row);
-
+                ActionData rowvaluehandler = new ActionData(row, valueHandler);
+                
                 foreach (IDbDataParameter p in bindresult.Command.Parameters)
                 {
                     if (BindParameter(rowvaluehandler, p) == false)

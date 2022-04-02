@@ -109,7 +109,38 @@ namespace DBBatis.Action
             }
             return dbactioncmd;
         }
+        public ActionResult Do(ActionData actionData,int userID, string connectionString)
+        {
+            
+            ActionResult result=new ActionResult();
+            if (userID <= 0)
+            {
+                result.ErrMessage = string.Format("Action【{0}】需要登录才可执行.", this.Name);
+                result.IsOut = true;
+                return result;
+            }
+            BatchActionBindCommand batchActionBindCommand = GetBatchActionBindCommand(actionData, userID);
+            if (batchActionBindCommand.IsErr)
+            {
+                result.ErrMessage = batchActionBindCommand.ErrMessage;
+            }
+            else
+            {
+                using (DbConnection cnn = this.DbConfig.CreateConnection())
+                {
+                    if(string.IsNullOrEmpty(connectionString)==false)
+                        cnn.ConnectionString= connectionString;
+                    cnn.Open();
+                    DbTransaction tran = cnn.BeginTransaction();
+                    result = DbAction.DoBatchCommand(batchActionBindCommand, cnn, tran, this.DbConfig);
+                    if (result.IsOK)
+                        tran.Commit();
+                }
 
+            }
+
+            return result;
+        }
         public string GetTestSQLCommand()
         {
             Page p = this.Page;

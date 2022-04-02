@@ -23,7 +23,7 @@ namespace DBBatis.Web
         /// </summary>
         /// <returns></returns>
         public abstract bool CheckValid();
-        
+
         public abstract System.Uri Url
         {
             get;
@@ -73,7 +73,7 @@ namespace DBBatis.Web
         public ActionResult DoDbActions()
         {
             return ActionManager.Instance().DoDbActions(this.Data
-                 , this.UserID,  ConnectionString);
+                 , this.UserID, ConnectionString);
         }
         /// <summary>
         /// 执行指定类型实例中的方法，方法名取HandlerValue["Method"]
@@ -147,7 +147,7 @@ namespace DBBatis.Web
             bool gzip = false;
             if (CanGZIP && bytes.Length > GZIPLenth)
             {
-                bytes =  Zip.GZipCompress(bytes);
+                bytes = Zip.GZipCompress(bytes);
                 gzip = true;
             }
             return Write(bytes, contentType, gzip);
@@ -164,14 +164,14 @@ namespace DBBatis.Web
         /// 用户自定义处理
         /// </summary>
         /// <remarks></remarks>
-        public static Func<ContextHandlerBase,string, Task> CustomPrecess;
+        public static Func<ContextHandlerBase, string, Task> CustomPrecess;
         public Task Precess()
         {
             if (!CheckValid())
             {
                 return Write("无效访问.");
             }
-            
+
             string[] temps = Url.Segments;
             string endname = temps[temps.Length - 1].ToLower();
             endname = endname.Substring(0, endname.IndexOf('.'));
@@ -180,8 +180,8 @@ namespace DBBatis.Web
 
                 if (endname.EndsWith("test"))
                 {
-                    return  TestActionHandler();//处理测试
-                    
+                    return TestActionHandler();//处理测试
+
                 }
                 else if (endname.EndsWith("testp"))
                 {
@@ -209,9 +209,9 @@ namespace DBBatis.Web
                             if (MainConfig.DbConfigs.ContainsKey(key))
                                 cnn = MainConfig.GetDbConfig(key).ConnectionString;
                             else
-                                cnn = string.Format("{0}不存在",key);
+                                cnn = string.Format("{0}不存在", key);
                         }
-                        
+
                     }
                     return Write(cnn);
                 }
@@ -236,15 +236,15 @@ namespace DBBatis.Web
                     string v = ErrorCommand.GetCommandLogs();
                     return WriteHtml(v);
                 }
-                if(CustomPrecess != null)
+                if (CustomPrecess != null)
                 {
-                    var task= CustomPrecess(this,endname);
+                    var task = CustomPrecess(this, endname);
                     if (task != null)
                     {
                         return task;
                     }
 
-                    
+
                 }
             }
             if (endname.EndsWith("combobox"))
@@ -255,7 +255,7 @@ namespace DBBatis.Web
             }
             ActionResult result = new ActionResult();
 
-            result = ActionManager.Instance().DoDbActions(Data, UserID, ConnectionString); 
+            result = ActionManager.Instance().DoDbActions(Data, UserID, ConnectionString);
 
             return Write(result.ToJson());
         }
@@ -347,7 +347,7 @@ namespace DBBatis.Web
         {
             string pageid = Data["PageID"];
             string actionname = Data["ActionName"];
-            short pageidint ;
+            short pageidint;
             ActionResult result = new ActionResult();
 
             if (string.IsNullOrEmpty(pageid) || short.TryParse(pageid, out pageidint) == false || string.IsNullOrEmpty(actionname))
@@ -369,13 +369,13 @@ namespace DBBatis.Web
                     {
                         System.Collections.Specialized.NameValueCollection nvs = new System.Collections.Specialized.NameValueCollection();
                         ActionCommand actionCommand = pc.DbActions[actionname].ActionCommand;
-                        
+
                         StringBuilder sb = new StringBuilder(string.Format(@"
 {{
 PageID:{0}
 ,ActionName:'{1}'
 ,Data:", pageid, actionname));
-                        
+
                         StringBuilder sbdata = new StringBuilder("{");
                         sbdata.AppendLine();
                         for (int i = 0; i < actionCommand.Command.Parameters.Count; i++)
@@ -503,6 +503,6 @@ PageID:{0}
 
             }
         }
-        
+
     }
 }

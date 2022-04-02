@@ -174,6 +174,7 @@ namespace DBBatis.Action
                     }else if (page.BatchDbActions.ContainsKey(actionName))
                     {
                         BatchDbAction batchDbAction = page.BatchDbActions[actionName];
+                        return batchDbAction.Do(handlerValue,userID,connectionString);
                     }
                     else
                     {

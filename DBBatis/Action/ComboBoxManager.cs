@@ -80,8 +80,9 @@ namespace DBBatis.Action
             else
             {
                 result.ErrMessage = "请指定Name参数";
+                Handler.Write(result.ToJson());
             }
-            Handler.Write(result.ToJson());
+            
         }
         /// <summary>
         /// 获取多个下拉数据
